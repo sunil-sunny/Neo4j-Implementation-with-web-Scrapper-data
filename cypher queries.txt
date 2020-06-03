@@ -1,0 +1,24 @@
+Query to load all the park details as nodes in Neo4j
+-----------------------------------------------------------------------------------------
+LOAD CSV WITH HEADERS FROM "file:///file4.csv" AS row
+CREATE (p:parks {ParkName : row.ParkName, PartySize : toInteger(row.partySize),
+RateType : row.RateType, BookingType : row.BookingType, Equipment : row.Equipment})
+
+Establish the relation NeghbourByRate among all the nodes:
+-----------------------------------------------------------------------------------------
+MATCH (a:parks), (b:parks)
+WHERE NOT a=b AND a.RateType =b.RateType
+CREATE UNIQUE (a)-[r:NeghbourByRate]->(b)
+
+Establish the relation NeghbourByEquipment among all the nodes:
+-----------------------------------------------------------------------------------------
+MATCH (a:parks), (b:parks)
+WHERE NOT a=b AND a.Equipment =b.Equipment
+CREATE UNIQUE (a)-[r:NeghbourByEquipment]->(b)
+
+Query to load the park details which has highest party size:
+-----------------------------------------------------------------------------------------
+match (n:parks) with max(n.PartySize) as max
+match (x:parks)
+where x.PartySize = max
+return x
